@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import {
   answerExam,
@@ -19,13 +20,28 @@ import {
   type Question,
 } from "../src/model";
 const bank = BASE_BANK;
+// Decimal half-up, accounting for binary evaluation error at the last bit.
+// Generation uses Python Decimal instead, so this is an independent path.
+function roundDecimalHalfUp(value: number, places: number) {
+  const scale = 10 ** places;
+  return (
+    Math.round(
+      (value + Number.EPSILON * Math.max(1, Math.abs(value))) * scale,
+    ) / scale
+  );
+}
 describe("문제은행 품질", () => {
-  it("90문항, 과목별 30개, 모두 출처가 표시된 자체 제작 내부 검수 문항", () => {
-    expect(bank).toHaveLength(90);
-    expect(new Set(bank.map((q) => q.id)).size).toBe(90);
-    expect(new Set(bank.map(fingerprint)).size).toBe(90);
+  it("일반 반올림은 0.625→0.63 및 14.325→14.33 경계를 처리한다", () => {
+    expect(roundDecimalHalfUp(0.625, 2)).toBe(0.63);
+    expect(roundDecimalHalfUp(14.325, 2)).toBe(14.33);
+    expect(roundDecimalHalfUp(14.324, 2)).toBe(14.32);
+  });
+  it("900문항, 과목별 300개, 모두 출처가 표시된 자체 제작 내부 검수 문항", () => {
+    expect(bank).toHaveLength(900);
+    expect(new Set(bank.map((q) => q.id)).size).toBe(900);
+    expect(new Set(bank.map(fingerprint)).size).toBe(900);
     SUBJECTS.forEach((s) =>
-      expect(bank.filter((q) => q.subject === s)).toHaveLength(30),
+      expect(bank.filter((q) => q.subject === s)).toHaveLength(300),
     );
     bank.forEach((q) => {
       expect(() => validateQuestion(q)).not.toThrow();
@@ -37,11 +53,57 @@ describe("문제은행 품질", () => {
       expect(q.rights).toContain("자체 제작");
     });
   });
+  it("기존 90문항의 ID·내용·답안·해설은 변경하지 않는다", () => {
+    const digest = createHash("sha256")
+      .update(JSON.stringify(bank.slice(0, 90)))
+      .digest("hex");
+    expect(digest).toBe(
+      "ac899dc9936701f50cca21e72f7d42a84d9752826bccbb9837ffc225bde85465",
+    );
+  });
+  it("추가 계산 유형은 24개이며 유형마다 다른 입력 조건 30개를 갖는다", () => {
+    const variants = bank.filter((q) => q.family);
+    expect(variants).toHaveLength(720);
+    const families = new Set(variants.map((q) => q.family));
+    expect(families.size).toBe(24);
+    for (const family of families) {
+      const questions = variants.filter((q) => q.family === family);
+      expect(questions).toHaveLength(30);
+      expect(
+        new Set(questions.map((q) => JSON.stringify(q.calculation?.values)))
+          .size,
+      ).toBe(30);
+    }
+  });
   for (const q of bank.filter((q) => q.calculation))
     it(`독립 계산 검증: ${q.id} ${q.topic}`, () => {
       const { kind, values: v, result, unit } = q.calculation!;
       // Independent evaluators from physics equations; not imported from the generation script.
       const calculations: Record<string, () => number> = {
+        voltageDivider: () => (v[0] / (v[1] + v[2])) * v[2],
+        theveninCurrent: () => v[0] / (v[1] + v[2]),
+        electricForce: () => v[1] * 1e-6 * v[0] * 1000,
+        mmf: () => v[0] * v[1],
+        inductiveReactance: () => 2 * 3.14 * v[0] * (v[1] * 1e-3),
+        capacitiveReactance: () => 1e6 / (2 * 3.14 * v[0] * v[1]),
+        threePhasePower: () => (1.732 * v[0] * v[1] * v[2]) / 1000,
+        maximumPower: () => Math.pow(v[0] / (2 * v[1]), 2) * v[1],
+        transformerRatedCurrent: () => (v[0] * 1000) / v[1],
+        machineEmf: () => v[0] * v[1],
+        generatorTerminalVoltage: () => v[0] - v[1] * v[2],
+        shaftTorque: () => (9550 * v[0]) / v[1],
+        rotorCopper: () => v[0] * v[1] * 0.01,
+        convertedPower: () => v[0] - v[0] * v[1] * 0.01,
+        efficiencyFromLoss: () => (100 * v[0]) / (v[0] + v[1]),
+        copperLoad: () => v[0] * Math.pow(v[1], 2),
+        dcWireDrop: () => ((2 * v[0] * v[2]) / v[1]) * v[3],
+        wireLoss: () => Math.pow(v[1], 2) * v[0],
+        lightingAverage: () => ((v[2] * v[1]) / v[0]) * v[3] * v[4],
+        luminousFlux: () => v[0] * v[1],
+        energyCost: () => v[0] * v[1] * v[2] * v[3],
+        demandPower: () => (v[0] * v[1]) / 100,
+        compensation: () => v[0] * v[1] - v[0] * v[2],
+        branchCurrent: () => (v[0] * v[1]) / v[2],
         current: () => v[0] / v[1],
         series: () => v.reduce((a, b) => a + b, 0),
         parallel: () => 1 / v.reduce((a, b) => a + 1 / b, 0),
@@ -62,7 +124,14 @@ describe("문제은행 품질", () => {
         slip: () => ((v[0] - v[1]) / v[0]) * 100,
       };
       expect(calculations[kind], `Unknown equation: ${kind}`).toBeDefined();
-      expect(calculations[kind]()).toBeCloseTo(result, 8);
+      const computed = calculations[kind]();
+      expect(Number.isFinite(computed)).toBe(true);
+      expect(result).toBeGreaterThan(0);
+      const expected =
+        q.calculation!.precision === undefined
+          ? computed
+          : roundDecimalHalfUp(computed, q.calculation!.precision);
+      expect(expected).toBeCloseTo(result, 8);
       expect(q.choices[q.answer - 1].replaceAll(" ", "")).toBe(
         `${result}${unit}`,
       );
@@ -94,6 +163,21 @@ describe("모의시험 및 절대 시간", () => {
     );
     expect(exam.deadline).toBe(3601000);
     expect(exam.questions.some((q) => q.id === "pending")).toBe(false);
+  });
+  it("기본 모의시험에서는 같은 숫자 변형 유형을 중복 출제하지 않는다", () => {
+    for (let round = 0; round < 20; round++) {
+      const exam = createExam(bank, "2024-2026");
+      const families = exam.questions.flatMap((q) =>
+        q.family ? [q.family] : [],
+      );
+      expect(new Set(families).size).toBe(families.length);
+    }
+  });
+  it("수입 문항의 유형이 20개 미만이어도 문항 수가 충분하면 60문항 시험을 구성한다", () => {
+    const imported = bank.map((q) => ({ ...q, family: `only-${q.subject}` }));
+    const exam = createExam(imported, "2024-2026");
+    expect(exam.questions).toHaveLength(60);
+    expect(new Set(exam.questions.map((q) => q.id)).size).toBe(60);
   });
   it("미준비 버전과 과목 문항 부족은 시험 시작을 차단한다", () => {
     expect(() => createExam(bank, "2027-2029")).toThrow();
@@ -155,12 +239,12 @@ describe("랜덤 학습", () => {
   it("한 과목의 모든 문항을 순회하기 전에는 중복이 없다", () => {
     let p = startPractice(bank, "2024-2026", "전기이론");
     const ids = new Set<string>();
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 300; i++) {
       expect(ids.has(p.currentId)).toBe(false);
       ids.add(p.currentId);
       p = nextPractice(p, bank);
     }
-    expect(ids.size).toBe(30);
+    expect(ids.size).toBe(300);
     expect(p.subject).toBe("전기이론");
   });
   it("즉시 채점·연속 정답·통계를 저장하며 중복 채점을 방지한다", () => {

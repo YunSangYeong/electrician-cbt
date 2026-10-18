@@ -20,11 +20,13 @@ export interface Question {
   reviewNote: string;
   version: Version;
   rights: string;
+  family?: string;
   calculation?: {
     kind: string;
     values: number[];
     result: number;
     unit: string;
+    precision?: number;
   };
 }
 export const BASE_BANK = [...bank2024, ...bank2027] as Question[];
@@ -119,7 +121,31 @@ export function createExam(
   return {
     id: crypto.randomUUID(),
     version,
-    questions: shuffled(pools.flatMap((p) => shuffled(p).slice(0, 20))),
+    questions: shuffled(
+      pools.flatMap((pool) => {
+        // Give each authored question / calculated family one initial slot.
+        // This avoids treating 30 number variants as 30 independent exam topics.
+        const groups = new Map<string, Question[]>();
+        for (const question of pool) {
+          const key = question.family
+            ? `family:${question.family}`
+            : `question:${question.id}`;
+          groups.set(key, [...(groups.get(key) || []), question]);
+        }
+        const selected = shuffled([...groups.values()])
+          .slice(0, 20)
+          .map((group) => shuffled(group)[0]);
+        const selectedIds = new Set(selected.map((q) => q.id));
+        // Imported banks may have fewer than 20 families but enough unique IDs.
+        return [
+          ...selected,
+          ...shuffled(pool.filter((q) => !selectedIds.has(q.id))).slice(
+            0,
+            20 - selected.length,
+          ),
+        ];
+      }),
+    ),
     answers: {},
     startedAt: now,
     deadline: now + 60 * 60 * 1000,
@@ -310,6 +336,13 @@ export function validateQuestion(value: unknown): Question {
       throw new Error(`${key}: 비어 있거나 너무 긴 문자열입니다.`);
   if (!/^[A-Za-z0-9_-]{1,100}$/.test(q.id as string))
     throw new Error("ID는 영문·숫자·하이픈·밑줄 100자 이내입니다.");
+  if (
+    q.family !== undefined &&
+    (typeof q.family !== "string" || !q.family.trim() || q.family.length > 100)
+  )
+    throw new Error(
+      "계산 유형 family는 비어 있지 않은 100자 이내 문자열이어야 합니다.",
+    );
   if (!SUBJECTS.includes(q.subject as Subject))
     throw new Error("과목이 올바르지 않습니다.");
   if (

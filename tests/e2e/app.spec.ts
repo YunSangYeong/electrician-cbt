@@ -27,6 +27,7 @@ test("대시보드·모바일 레이아웃·준비 중 버전", async ({ page })
       () => document.documentElement.scrollWidth <= window.innerWidth,
     ),
   ).toBe(true);
+  await expect(page.locator(".bank-summary")).toContainText(/등록\s*900문항/);
   await page.getByLabel("학습 기준").selectOption("2027-2029");
   await expect(
     page.getByRole("button", { name: "모의시험 시작하기", exact: true }),
@@ -159,6 +160,16 @@ test("JSON 등록·중복 제거·검수 대기·사용자 검수·CSV 등록·�
 }) => {
   await page.goto("");
   await nav(page, "문제은행 관리");
+  await expect(page.locator(".bank-row")).toHaveCount(20);
+  await expect(page.locator(".pagination")).toContainText("1 / 45");
+  await page.getByLabel("문항 검색", { exact: true }).fill("ORG-I-300");
+  await expect(page.locator(".bank-row")).toHaveCount(1);
+  await page.locator(".bank-row summary").click();
+  await expect(page.locator(".bank-row .explanation")).toContainText("5 A");
+  await expect(page.locator(".bank-row .explanation")).toContainText(
+    "자체 제작 계산 변형",
+  );
+  await page.getByLabel("문항 검색", { exact: true }).fill("");
   const custom = {
     ...bank[0],
     id: "LOCAL-001",

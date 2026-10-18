@@ -1366,7 +1366,7 @@ function App() {
         >
           {modal === "submit"
             ? `아직 응답하지 않은 문제가 ${state.exam ? 60 - Object.keys(state.exam.answers).length : 0}개입니다. 미응답은 오답으로 처리하며, 제출 후에는 답안을 변경할 수 없습니다.`
-            : "진행 중인 시험, 학습 기록, 오답노트, 북마크, 직접 가져온 문항이 삭제됩니다. 기본 90문항은 유지됩니다. 필요한 기록을 먼저 백업하세요."}
+            : `진행 중인 시험, 학습 기록, 오답노트, 북마크, 직접 가져온 문항이 삭제됩니다. 기본 ${BASE_BANK.length}문항은 유지됩니다. 필요한 기록을 먼저 백업하세요.`}
         </ConfirmDialog>
       )}
     </div>
@@ -1698,7 +1698,9 @@ function BankManager({
       <div className="notice">
         <ShieldCheck size={19} />
         <div>
-          <strong>기본 문항은 90개 모두 자체 제작입니다.</strong>
+          <strong>
+            기본 문항은 {BASE_BANK.length}개 모두 자체 제작입니다.
+          </strong>
           <br />
           원문 기출 0 · 복원문제 0. 공식 자료 접근 제한으로 기출 원문 및
           2024–2029 출제기준 대조는 완료하지 못했습니다. 기본 문항은 내부 검토

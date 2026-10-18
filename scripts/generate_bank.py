@@ -20,6 +20,7 @@ def q(subject, topic, stem, choices, explanation, difficulty='하', calc=None):
     }
     if calc: item['calculation']=calc
     bank.append(item)
+    return item
 def c(kind, values, result, unit): return dict(kind=kind,values=values,result=result,unit=unit)
 S='전기이론'
 q(S,'직류 회로','저항 6 Ω에 직류 전압 24 V를 가할 때 흐르는 전류는?', ['4 A','0.25 A','18 A','144 A'],'옴의 법칙 I = V/R를 사용합니다. I = 24/6 = 4 A입니다. 전압이 일정할 때 저항이 커지면 전류는 작아집니다.',calc=c('current',[24,6],4,'A'))
@@ -114,6 +115,10 @@ q(S,'시퀀스 제어','자기유지 회로에서 접촉기의 보조 a접점을
 q(S,'시퀀스 제어','정역 운전 회로에서 인터록을 사용하는 주된 목적은?', ['정회전과 역회전 접촉기의 동시 투입을 막기 위해','정지 기능을 없애기 위해','전동기 절연을 제거하기 위해','부하 전류를 무한대로 하기 위해'],'두 접촉기가 동시에 투입되면 상간 단락 등의 위험이 있습니다. 전기적·기계적 인터록으로 동시 투입을 방지합니다.')
 q(S,'전동기 보호','열동형 과부하 계전기의 주된 역할은?', ['지속적인 과부하로부터 전동기를 보호하기 위해 제어회로를 동작시킨다','단락전류를 어떤 크기든 직접 차단한다','누설전류만 검출한다','전동기 회전수를 항상 일정하게 한다'],'열동형 과부하 계전기는 전류의 열적 효과로 과부하를 감지해 접촉기 등을 차단하도록 합니다. 단락 보호장치와 적절히 조합해야 합니다.')
 q(S,'안전과 규정','설비 기준 수치가 서로 다른 오래된 자료와 최신 규정 중 실제 설계·시공에 적용할 기준은?', ['적용 시점과 경과 조치 등을 확인한 현행 법령·기준','인터넷에서 먼저 찾은 오래된 수치','가장 작은 수치만 무조건','시험 문제의 보기 중 익숙한 수치'],'전기설비 기준은 개정될 수 있습니다. 적용 시점, 경과 조치와 설비 조건을 확인해 현행 법령과 기준을 적용해야 하며 학습용 해설만으로 시공 판단을 해서는 안 됩니다.')
-assert len(bank)==90
+from expanded_bank import add_questions
+add_questions(q, c)
+assert len(bank)==900
 (ROOT/'src/data/questions-2024-2026.json').write_text(json.dumps(bank,ensure_ascii=False,indent=2)+'\n')
-(ROOT/'src/data/questions-2027-2029.json').write_text('[]\n')
+future = ROOT/'src/data/questions-2027-2029.json'
+if not future.exists():
+    future.write_text('[]\n')
