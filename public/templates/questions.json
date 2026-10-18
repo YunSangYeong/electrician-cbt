@@ -1,0 +1,25 @@
+[
+  {
+    "id": "IMPORT-EXAMPLE-001",
+    "subject": "전기이론",
+    "topic": "직류 회로",
+    "question": "저항 10 Ω에 50 V의 직류 전압을 가했을 때 전류는?",
+    "choices": [
+      "5 A",
+      "0.2 A",
+      "500 A",
+      "40 A"
+    ],
+    "answer": 1,
+    "explanation": "옴의 법칙 I = V/R = 50/10 = 5 A입니다. 단위를 확인해 계산합니다.",
+    "difficulty": "하",
+    "year": null,
+    "session": null,
+    "type": "original",
+    "sourceUrl": "https://github.com/YunSangYeong/electrician-cbt/blob/main/src/data/questions-2024-2026.json",
+    "verificationStatus": "pending",
+    "reviewNote": "양식 예제 · 실제 등록 전 정답과 이용 권한을 확인하세요.",
+    "version": "2024-2026",
+    "rights": "프로젝트 자체 제작 · CC BY 4.0"
+  }
+]

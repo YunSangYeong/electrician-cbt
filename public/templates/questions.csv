@@ -1,0 +1,2 @@
+﻿id,subject,topic,question,answer,explanation,difficulty,year,session,type,sourceUrl,verificationStatus,reviewNote,version,rights,choice1,choice2,choice3,choice4
+IMPORT-EXAMPLE-001,전기이론,직류 회로,저항 10 Ω에 50 V의 직류 전압을 가했을 때 전류는?,1,옴의 법칙 I = V/R = 50/10 = 5 A입니다. 단위를 확인해 계산합니다.,하,,,original,https://github.com/YunSangYeong/electrician-cbt/blob/main/src/data/questions-2024-2026.json,pending,양식 예제 · 실제 등록 전 정답과 이용 권한을 확인하세요.,2024-2026,프로젝트 자체 제작 · CC BY 4.0,5 A,0.2 A,500 A,40 A
