@@ -81,7 +81,11 @@ PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e
 
 예상 공개 주소: **https://YunSangYeong.github.io/electrician-cbt/**
 
-이 주소는 저장소명 기준의 예상 주소입니다. 로컬 빌드 성공이나 workflow 파일 존재는 실제 공개 배포 성공을 뜻하지 않습니다. 클라우드에서 GitHub API·Pages 호스트가 네트워크 정책으로 차단되면 Pages 활성화와 Actions 결과를 확인할 수 없으며 저장소 설정에서 확인해야 합니다. 실제 배포 확인 상태는 작업 완료 보고에서 구분합니다.
+**2026-10-18 실제 배포 확인 결과:** [Actions 실행 #1](https://github.com/YunSangYeong/electrician-cbt/actions/runs/39135408126)에서 `validate` 작업이 성공했고 `github-pages` 산출물(106KB)이 생성되었습니다. `deploy`는 `actions/configure-pages`의 Pages 사이트 조회에서 **404 Not Found**로 실패했습니다. 따라서 아직 공개 배포 완료가 아닙니다.
+
+저장소 관리자가 **Settings → Pages → Source: GitHub Actions**를 설정한 뒤, 위 실행 화면에서 **Re-run failed jobs**로 배포 단계를 재실행하세요. `GITHUB_TOKEN`만으로 Pages 최초 활성화를 자동 처리할 수 없으므로 불필요한 토큰을 추가하지 않고 저장소 설정을 사용합니다. 근거: [configure-pages의 enablement 입력 설명](https://github.com/actions/configure-pages/blob/v5/action.yml).
+
+현재 클라우드에서는 GitHub API 및 Pages 호스트에 대한 직접 요청이 프록시 403으로 차단되며, 저장소 Pages 설정 화면도 접근할 수 없습니다. Actions 공개 웹 화면에서 위 실패 결과를 확인했습니다. 도메인 접근을 위한 환경 설정 초안은 저장했지만 런타임 적용·환경 게시나 Pages 활성화를 완료했다고 주장하지 않습니다. 이 문서의 상태 기록만 바꾸는 후속 커밋은 `[skip ci]`로 중복 검증을 생략하며, 검증한 앱 코드는 위 실행의 `42c6dea`와 동일합니다.
 
 ## 학습 기록과 확장
 
