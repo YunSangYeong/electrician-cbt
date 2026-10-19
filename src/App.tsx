@@ -257,6 +257,8 @@ function App() {
     .filter((s) => s.total)
     .sort((a, b) => a.rate - b.rate)[0];
   const sectionRef = useRef<HTMLDivElement>(null);
+  const questionRef = useRef<HTMLHeadingElement>(null);
+  const examAnswer = activeQuestion && state.exam?.answers[activeQuestion.id];
   const notify = (message: string) => setToast(message);
   const advancePractice = useCallback((requireGraded = false) => {
     setState((current) => {
@@ -276,19 +278,16 @@ function App() {
     const onKeyDown = (event: KeyboardEvent) => {
       if (
         event.defaultPrevented ||
-        event.code !== "Space" ||
+        (event.code !== "Space" && event.key !== " ") ||
         event.repeat ||
         event.isComposing ||
         event.altKey ||
         event.ctrlKey ||
         event.metaKey ||
         event.shiftKey ||
-        view !== "practice" ||
+        (view !== "practice" && view !== "exam") ||
         modal ||
-        menuOpen ||
-        !p?.revealed ||
-        p.version !== state.version ||
-        !practiceQuestion
+        menuOpen
       )
         return;
       // Preserve typing and native keyboard activation of enabled controls.
@@ -301,8 +300,27 @@ function App() {
         )
       )
         return;
-      event.preventDefault();
-      advancePractice(true);
+      if (
+        view === "practice" &&
+        p?.revealed &&
+        p.version === state.version &&
+        practiceQuestion
+      ) {
+        event.preventDefault();
+        advancePractice(true);
+      } else if (
+        view === "exam" &&
+        state.exam &&
+        examAnswer &&
+        examIndex < 59 &&
+        Date.now() < state.exam.deadline
+      ) {
+        event.preventDefault();
+        setExamIndex((index) =>
+          index === examIndex ? Math.min(index + 1, 59) : index,
+        );
+        window.scrollTo({ top: 0 });
+      }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
@@ -314,7 +332,16 @@ function App() {
     state.version,
     practiceQuestion,
     advancePractice,
+    state.exam,
+    examAnswer,
+    examIndex,
   ]);
+  useEffect(() => {
+    // Put focus on the question after grading / selecting and after navigation.
+    // Disabled choices and native button Space handling must not swallow the shortcut.
+    if (view === "practice" || view === "exam")
+      questionRef.current?.focus({ preventScroll: true });
+  }, [view, p?.currentId, p?.revealed, examIndex, examAnswer]);
 
   useEffect(() => {
     if (!canPersist) return;
@@ -916,7 +943,13 @@ function App() {
                       <strong>{String(examIndex + 1).padStart(2, "0")}</strong>
                       <span>/ 60</span>
                     </div>
-                    <h2 className="question-stem">{activeQuestion.question}</h2>
+                    <h2
+                      className="question-stem"
+                      ref={questionRef}
+                      tabIndex={-1}
+                    >
+                      {activeQuestion.question}
+                    </h2>
                     <Choices
                       q={activeQuestion}
                       selected={state.exam.answers[activeQuestion.id]}
@@ -941,10 +974,15 @@ function App() {
                           window.scrollTo(0, 0);
                         }}
                         disabled={examIndex === 59}
+                        shortcut="Space"
                       >
                         다음 문제 <ArrowRight size={16} />
                       </Button>
                     </div>
+                    <p className="muted small">
+                      답안 선택 후 <kbd>Space</kbd> 키로 다음 문제로 이동합니다.
+                      마지막 문제에서는 시험을 자동 제출하지 않습니다.
+                    </p>
                   </section>
                   <aside className="panel answer-panel">
                     <div className="panel-heading">
@@ -1105,7 +1143,11 @@ function App() {
                   <section className="panel question-panel practice-question">
                     {questionTop(practiceQuestion)}
                     <Source q={practiceQuestion} />
-                    <h2 className="question-stem">
+                    <h2
+                      className="question-stem"
+                      ref={questionRef}
+                      tabIndex={-1}
+                    >
                       {practiceQuestion.question}
                     </h2>
                     <Choices

@@ -285,6 +285,7 @@ test("채점 후 Space로 한 문제씩 이동하고 버튼·컨트롤·대화�
     .first()
     .click();
   await expect(page.locator(".explanation")).toBeVisible();
+  await expect(page.locator(".question-stem")).toBeFocused();
   await page.keyboard.press("Space");
   await expect(page.locator(".explanation")).toHaveCount(0);
   let saved = await read(page);
@@ -334,18 +335,16 @@ test("채점 후 Space로 한 문제씩 이동하고 버튼·컨트롤·대화�
   // Space while a form control is focused keeps its default behavior.
   await page.locator("#practice-filter").focus();
   expect(
-    await page
-      .locator("#practice-filter")
-      .evaluate((el) =>
-        el.dispatchEvent(
-          new KeyboardEvent("keydown", {
-            key: " ",
-            code: "Space",
-            bubbles: true,
-            cancelable: true,
-          }),
-        ),
+    await page.locator("#practice-filter").evaluate((el) =>
+      el.dispatchEvent(
+        new KeyboardEvent("keydown", {
+          key: " ",
+          code: "Space",
+          bubbles: true,
+          cancelable: true,
+        }),
       ),
+    ),
   ).toBe(true);
   expect((await read(page)).practice.currentId).toBe(thirdId);
   if (await page.getByRole("button", { name: "메뉴 열기" }).isVisible())
@@ -367,4 +366,46 @@ test("채점 후 Space로 한 문제씩 이동하고 버튼·컨트롤·대화�
   );
   expect((await read(page)).practice.currentId).toBe(thirdId);
   await page.getByRole("button", { name: "돌아가기", exact: true }).click();
+});
+
+test("실전시험에서도 답안 선택 후 Space로 이동하며 미응답·마지막 문제는 유지한다", async ({
+  page,
+}) => {
+  await page.goto("");
+  await page
+    .getByRole("button", { name: "모의시험 시작하기", exact: true })
+    .click();
+  await page.keyboard.press("Space");
+  await expect(page.locator(".question-counter strong")).toHaveText("01");
+  await page
+    .getByRole("group", { name: "답안 선택" })
+    .getByRole("button")
+    .first()
+    .click();
+  await expect(page.locator(".question-stem")).toBeFocused();
+  await page.keyboard.press("Shift+Space");
+  await expect(page.locator(".question-counter strong")).toHaveText("01");
+  await page.keyboard.press("Space");
+  await expect(page.locator(".question-counter strong")).toHaveText("02");
+  await page.keyboard.press("Space");
+  await expect(page.locator(".question-counter strong")).toHaveText("02");
+  await page.getByRole("button", { name: "60번 미응답", exact: true }).click();
+  await page
+    .getByRole("group", { name: "답안 선택" })
+    .getByRole("button")
+    .first()
+    .click();
+  await page.keyboard.press("Space");
+  await expect(page.locator(".question-counter strong")).toHaveText("60");
+  expect((await read(page)).exam).not.toBeNull();
+  expect((await read(page)).results).toHaveLength(0);
+  // Native keyboard selection of another choice remains available.
+  await page
+    .getByRole("group", { name: "답안 선택" })
+    .getByRole("button")
+    .nth(1)
+    .focus();
+  await page.keyboard.press("Space");
+  const saved = await read(page);
+  expect(saved.exam.answers[saved.exam.questions[59].id]).toBe(2);
 });
