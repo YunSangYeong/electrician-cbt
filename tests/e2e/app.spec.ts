@@ -269,3 +269,102 @@ test("타이머 콜백 전 만료 후 답안 클릭도 자동 제출하며 답�
   expect(saved.results[0].answers).toEqual({});
   expect(saved.results[0].reason).toBe("timeout");
 });
+
+test("채점 후 Space로 한 문제씩 이동하고 버튼·컨트롤·대화상자 동작을 보존한다", async ({
+  page,
+}) => {
+  await page.goto("");
+  await page.getByRole("button", { name: "문제풀이 시작하기" }).click();
+  const firstId = (await read(page)).practice.currentId;
+  // Space does not skip an unanswered question.
+  await page.keyboard.press("Space");
+  expect((await read(page)).practice.currentId).toBe(firstId);
+  await page
+    .getByRole("group", { name: "답안 선택" })
+    .getByRole("button")
+    .first()
+    .click();
+  await expect(page.locator(".explanation")).toBeVisible();
+  await page.keyboard.press("Space");
+  await expect(page.locator(".explanation")).toHaveCount(0);
+  let saved = await read(page);
+  expect(saved.practice.currentId).not.toBe(firstId);
+  expect(saved.practice.seen).toHaveLength(1);
+  expect(saved.attempts).toHaveLength(1);
+  const secondId = saved.practice.currentId;
+  await page.keyboard.press("Space");
+  expect((await read(page)).practice.currentId).toBe(secondId);
+
+  await page
+    .getByRole("group", { name: "답안 선택" })
+    .getByRole("button")
+    .first()
+    .click();
+  // Holding the key must not auto-advance.
+  await page.evaluate(() =>
+    window.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: " ",
+        code: "Space",
+        repeat: true,
+        bubbles: true,
+      }),
+    ),
+  );
+  expect((await read(page)).practice.currentId).toBe(secondId);
+  // A focused bookmark button keeps native Space activation.
+  await page.getByRole("button", { name: "북마크 추가" }).focus();
+  await page.keyboard.press("Space");
+  await expect(page.getByRole("button", { name: "북마크 해제" })).toBeVisible();
+  expect((await read(page)).practice.currentId).toBe(secondId);
+  // A focused next button advances once, via its native click on keyup.
+  await page.getByRole("button", { name: "다음 문제", exact: true }).focus();
+  await page.keyboard.press("Space");
+  saved = await read(page);
+  expect(saved.practice.currentId).not.toBe(secondId);
+  expect(saved.practice.seen).toHaveLength(2);
+  expect(saved.attempts).toHaveLength(2);
+
+  await page
+    .getByRole("group", { name: "답안 선택" })
+    .getByRole("button")
+    .first()
+    .click();
+  const thirdId = (await read(page)).practice.currentId;
+  // Space while a form control is focused keeps its default behavior.
+  await page.locator("#practice-filter").focus();
+  expect(
+    await page
+      .locator("#practice-filter")
+      .evaluate((el) =>
+        el.dispatchEvent(
+          new KeyboardEvent("keydown", {
+            key: " ",
+            code: "Space",
+            bubbles: true,
+            cancelable: true,
+          }),
+        ),
+      ),
+  ).toBe(true);
+  expect((await read(page)).practice.currentId).toBe(thirdId);
+  if (await page.getByRole("button", { name: "메뉴 열기" }).isVisible())
+    await page.getByRole("button", { name: "메뉴 열기" }).click();
+  await page
+    .getByRole("button", { name: "데이터 초기화", exact: true })
+    .click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  // Even a key event outside the dialog must not advance the background quiz.
+  await page.evaluate(() =>
+    window.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: " ",
+        code: "Space",
+        bubbles: true,
+        cancelable: true,
+      }),
+    ),
+  );
+  expect((await read(page)).practice.currentId).toBe(thirdId);
+  await page.getByRole("button", { name: "돌아가기", exact: true }).click();
+});

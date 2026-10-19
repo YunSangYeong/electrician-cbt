@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import {
   ArrowDownToLine,
   ArrowLeft,
@@ -105,18 +111,21 @@ function Button({
   secondary = false,
   disabled = false,
   className = "",
+  shortcut,
 }: {
   children: ReactNode;
   onClick: () => void;
   secondary?: boolean;
   disabled?: boolean;
   className?: string;
+  shortcut?: string;
 }) {
   return (
     <button
       className={`${secondary ? "btn secondary" : "btn"} ${className}`}
       onClick={onClick}
       disabled={disabled}
+      aria-keyshortcuts={shortcut}
     >
       {children}
     </button>
@@ -249,6 +258,64 @@ function App() {
     .sort((a, b) => a.rate - b.rate)[0];
   const sectionRef = useRef<HTMLDivElement>(null);
   const notify = (message: string) => setToast(message);
+  const advancePractice = useCallback((requireGraded = false) => {
+    setState((current) => {
+      if (!current.practice || (requireGraded && !current.practice.revealed))
+        return current;
+      return {
+        ...current,
+        practice: nextPractice(current.practice, [
+          ...BASE_BANK,
+          ...current.imported,
+        ]),
+      };
+    });
+    window.scrollTo({ top: 0 });
+  }, []);
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (
+        event.defaultPrevented ||
+        event.code !== "Space" ||
+        event.repeat ||
+        event.isComposing ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.shiftKey ||
+        view !== "practice" ||
+        modal ||
+        menuOpen ||
+        !p?.revealed ||
+        p.version !== state.version ||
+        !practiceQuestion
+      )
+        return;
+      // Preserve typing and native keyboard activation of enabled controls.
+      // A graded choice is disabled, so focus left there may use the shortcut.
+      const target = event.target;
+      if (
+        target instanceof Element &&
+        target.closest(
+          'input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="textbox"], button:not(:disabled), a, summary, [role="button"]',
+        )
+      )
+        return;
+      event.preventDefault();
+      advancePractice(true);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [
+    view,
+    modal,
+    menuOpen,
+    p,
+    state.version,
+    practiceQuestion,
+    advancePractice,
+  ]);
+
   useEffect(() => {
     if (!canPersist) return;
     try {
@@ -1073,20 +1140,16 @@ function App() {
                         답안을 선택하면 즉시 채점됩니다.
                       </span>
                       <Button
-                        onClick={() =>
-                          setState((s) =>
-                            s.practice
-                              ? {
-                                  ...s,
-                                  practice: nextPractice(s.practice, bank),
-                                }
-                              : s,
-                          )
-                        }
+                        onClick={() => advancePractice()}
+                        shortcut="Space"
                       >
                         다음 문제 <ArrowRight size={17} />
                       </Button>
                     </div>
+                    <p className="muted small">
+                      채점 후 <kbd>Space</kbd> 키로도 다음 문제로 이동할 수
+                      있습니다.
+                    </p>
                   </section>
                 </>
               ) : (
