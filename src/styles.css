@@ -339,13 +339,6 @@ p {
   color: #8b969e;
   margin: 0;
 }
-.version-select {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 10px;
-  color: #8c989e;
-}
 select {
   background: #fff;
   border: 1px solid #e2e8ea;
@@ -1855,11 +1848,6 @@ footer > span:first-child {
   .page-heading h1 {
     font-size: 25px;
   }
-  .version-select {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
-  }
   .criteria-note {
     font-size: 9px;
     align-items: flex-start;
@@ -2094,15 +2082,6 @@ footer > span:first-child {
     font-size: 8px;
     letter-spacing: 1.6px;
   }
-  .version-select {
-    font-size: 9px;
-    margin-top: 6px;
-  }
-  .version-select select {
-    font-size: 10px;
-    padding: 7px 8px;
-    max-width: 135px;
-  }
   .criteria-note {
     margin-bottom: 18px;
   }
@@ -2286,16 +2265,6 @@ footer > span:first-child {
   .page-heading p {
     font-size: 10px;
     max-width: 230px;
-  }
-  .version-select {
-    font-size: 8px;
-    gap: 4px;
-    flex-shrink: 0;
-  }
-  .version-select select {
-    font-size: 9px;
-    max-width: 112px;
-    padding: 7px 6px;
   }
   .mode-grid {
     grid-template-columns: 1fr;

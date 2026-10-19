@@ -83,8 +83,10 @@ const navigation: { id: View; label: string; icon: typeof Zap }[] = [
 ];
 function load() {
   try {
+    const restored = restoreStore(localStorage.getItem(STORAGE_KEY));
     return {
-      state: restoreStore(localStorage.getItem(STORAGE_KEY)),
+      // The picker is removed. Reset only the old preference, retaining all records.
+      state: { ...restored, version: "2024-2026" as const },
       error: "",
       safe: true,
     };
@@ -615,30 +617,10 @@ function App() {
                   <h1>전기기능사 필기 CBT</h1>
                   <p>오늘의 한 문제, 합격에 한 걸음 더 가까이.</p>
                 </div>
-                <label className="version-select">
-                  학습 기준
-                  <select
-                    aria-label="학습 기준"
-                    value={state.version}
-                    disabled={!!state.exam}
-                    onChange={(e) =>
-                      setState((s) => ({
-                        ...s,
-                        version: e.target.value as Version,
-                        practice: null,
-                      }))
-                    }
-                  >
-                    <option value="2024-2026">기본 문제은행</option>
-                    <option value="2027-2029">2027–2029 · 준비 중</option>
-                  </select>
-                </label>
               </div>
               <div className="criteria-note">
                 <ShieldCheck size={16} />
-                {state.version === "2024-2026"
-                  ? "공식 출제기준 대조 대기 · 자체 제작 연습문제 제공"
-                  : "2027–2029 별도 버전 · 공식 기준 및 문항 검증 전으로 출제를 제공하지 않습니다."}
+                공식 출제기준 대조 대기 · 자체 제작 연습문제 제공
               </div>
               <section className="mode-grid" aria-label="시험 모드">
                 <article className="mode-card exam-mode">

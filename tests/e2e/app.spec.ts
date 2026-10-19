@@ -17,7 +17,7 @@ async function expectNoDefaultVersionYears(page: Page) {
     /2024\s*년?\s*[–~−-]\s*2026/,
   );
 }
-test("대시보드·모바일 레이아웃·준비 중 버전", async ({ page }) => {
+test("학습 기준 선택 제거·모바일 화면·이전 선택 복원", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("");
@@ -33,16 +33,30 @@ test("대시보드·모바일 레이아웃·준비 중 버전", async ({ page })
     ),
   ).toBe(true);
   await expect(page.locator(".bank-summary")).toContainText(/등록\s*900문항/);
-  await expect(
-    page.getByLabel("학습 기준").locator("option:checked"),
-  ).toHaveText("기본 문제은행");
+  await expect(page.getByLabel("학습 기준")).toHaveCount(0);
+  await expect(page.locator("main")).not.toContainText("학습 기준");
+  await expect(page.locator("main")).not.toContainText("2027–2029");
   await expectNoDefaultVersionYears(page);
-  await page.getByLabel("학습 기준").selectOption("2027-2029");
+  // A stored selection of the formerly unavailable bank must not block learning.
+  await page.evaluate((storageKey) => {
+    const saved = JSON.parse(localStorage.getItem(storageKey)!);
+    saved.version = "2027-2029";
+    saved.bookmarks = ["ORG-T-001"];
+    saved.wrongIds = ["ORG-T-002"];
+    localStorage.setItem(storageKey, JSON.stringify(saved));
+  }, key);
+  await page.reload();
+  await expect(page.getByLabel("학습 기준")).toHaveCount(0);
   await expect(
     page.getByRole("button", { name: "모의시험 시작하기", exact: true }),
-  ).toBeDisabled();
-  await page.reload();
-  await expect(page.getByLabel("학습 기준")).toHaveValue("2027-2029");
+  ).toBeEnabled();
+  await expect(
+    page.getByRole("button", { name: "문제풀이 시작하기", exact: true }),
+  ).toBeEnabled();
+  const restored = await read(page);
+  expect(restored.version).toBe("2024-2026");
+  expect(restored.bookmarks).toEqual(["ORG-T-001"]);
+  expect(restored.wrongIds).toEqual(["ORG-T-002"]);
   expect(errors).toEqual([]);
 });
 test("60문항 답변·북마크·새로고침 복원·합격 결과·전체 해설·오답 복습", async ({
