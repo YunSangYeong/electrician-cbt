@@ -4,6 +4,10 @@
 [검증하는 웹 프로젝트 개발 스킬](.agents/skills/verified-web-project/SKILL.md)을 읽고 적용한다.
 사용자와 상위 지침을 우선하며, 기존 변경과 프로젝트별 지침을 보존한다.
 
+다른 자격증 CBT를 새로 만들거나 현재 CBT 표준을 재사용하는 요청에는 추가로
+[CBT 사이트 표준](.agents/skills/cbt-site-standard/SKILL.md)을 읽는다.
+CBT 전용 화면·동작·시험 규칙 분리 기준은 이 전용 스킬을 적용한다.
+
 ## 적용 방법
 
 - 작업 시작 시 현재 저장소 상태와 README를 확인하고 위 SKILL.md를 읽는다.
@@ -24,5 +28,6 @@
 
 - `AGENTS.md`의 스킬 참조 및 적용 지침
 - `.agents/skills/verified-web-project/` 폴더 전체
+- 다른 자격증 CBT를 만들 때는 `.agents/skills/cbt-site-standard/` 폴더 전체도 복사
 
 선택 양식은 스킬 폴더의 `references/`에 있다. 해당 프로젝트의 기능·데이터 목표·배포 대상은 사용자의 요청과 README를 기준으로 정한다.

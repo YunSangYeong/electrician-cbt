@@ -134,3 +134,12 @@ tests/                   단위 테스트 및 브라우저 시나리오
 프로젝트 지침을 통해 절차를 적용하는 방식이며 계정 공통 스킬·플러그인 등록과는 다릅니다. 별도 로컬 다운로드나 매 대화의 파일 첨부는 필요하지 않습니다. 스킬 선택 목록에 표시되는지와 지침을 파일로 읽어 적용하는지는 구분합니다. 아직 새 클라우드 작업을 생성해 자동 로딩을 검증한 것은 아닙니다.
 
 다른 프로젝트에도 적용하려면 `.agents/skills/verified-web-project/` 폴더를 복사하고 해당 저장소의 AGENTS.md에 위 SKILL.md를 읽도록 지시합니다. 기존 AGENTS.md는 보존하고 필요한 참조만 병합하세요. 이 작업은 각 대상 저장소를 다루는 클라우드 Codex에 요청할 수 있습니다. 요구사항·검증 보고서·출처 검토 양식은 스킬 폴더의 `references/`에 있습니다.
+
+
+## 다른 자격증 CBT를 만들기 위한 전용 표준
+
+[cbt-site-standard 스킬](.agents/skills/cbt-site-standard/SKILL.md)은 학습 기준 메뉴 제거와 두 모드 Space 지원까지 반영된 최종 앱 커밋 `b9a682ccff1b460334b78d5bfad9375b7ec4fbb6`을 기준으로 합니다. 기존 일반 개발 절차 스킬과 함께 사용할 수 있으며, 다른 자격증 CBT의 화면·기능·저장·문제 관리·검증·배포 기준을 제공합니다.
+
+[새 프로젝트 요청 예시](.agents/skills/cbt-site-standard/references/new-project-prompt.md)를 복사하여 클라우드 Codex에 전달하세요. 대상 저장소에 `.agents/skills/cbt-site-standard/` 폴더를 복사하고 기존 AGENTS.md에 연결하도록 요청하면 됩니다. 자격증별 과목·시험 수치·합격 규칙·문항 출처는 별도 확인하며 전기기능사 문제를 그대로 다른 자격증 문제로 복사하지 않습니다.
+
+[스킬 묶음 ZIP](docs/skills/cbt-site-standard-v1.0.0.zip)에는 SKILL.md, 고정 기준 명세, 자격증 설정 양식, 인수 체크리스트, AGENTS 연결 양식, 클라우드 시작 요청과 사용 안내가 포함됩니다. 계정 공통 스킬 등록이나 새 프로젝트의 자동 인식을 완료한 것은 아닙니다.

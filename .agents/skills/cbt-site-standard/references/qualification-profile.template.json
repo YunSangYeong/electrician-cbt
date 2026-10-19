@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "standard": {
+    "name": "cbt-site-standard",
+    "version": "1.0.0",
+    "referenceRepository": "YunSangYeong/electrician-cbt",
+    "referenceCommit": "b9a682ccff1b460334b78d5bfad9375b7ec4fbb6"
+  },
+  "qualification": {
+    "name": null,
+    "slug": null,
+    "officialIssuer": null,
+    "rulesVerificationStatus": "pending",
+    "officialSources": [],
+    "verifiedAt": null
+  },
+  "exam": {
+    "questionCount": null,
+    "durationMinutes": null,
+    "choiceCount": null,
+    "subjects": [],
+    "selectionPolicy": null,
+    "scoring": {
+      "maxScore": null,
+      "passScore": null,
+      "hasSubjectCutoff": null,
+      "subjectCutoffs": [],
+      "unansweredPolicy": null
+    }
+  },
+  "questionBank": {
+    "defaultBankId": "main",
+    "targetReviewedCount": null,
+    "importedDefaultStatus": "pending",
+    "types": ["past", "reconstructed", "original"],
+    "allowNumericVariants": null,
+    "reportVariantFamiliesAndCounts": true
+  },
+  "ui": {
+    "locale": "ko-KR",
+    "showStudyCriteriaSelector": false,
+    "showBankYearRange": false,
+    "nextQuestionShortcut": "Space",
+    "shortcutModes": ["exam", "practice"],
+    "requireAnswerBeforeGlobalShortcut": true,
+    "autoSubmitLastQuestionOnSpace": false,
+    "officialBranding": false
+  },
+  "storage": {
+    "namespace": null,
+    "schemaVersion": 1,
+    "maxAttempts": 5000,
+    "maxExamResults": 30
+  },
+  "deployment": {
+    "provider": "github-pages",
+    "repository": null,
+    "branch": "main",
+    "basePath": null,
+    "publicUrl": null,
+    "blogIframe": true
+  }
+}
