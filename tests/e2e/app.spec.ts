@@ -12,6 +12,11 @@ async function nav(page: Page, label: string) {
 async function read(page: Page) {
   return await page.evaluate((k) => JSON.parse(localStorage.getItem(k)!), key);
 }
+async function expectNoDefaultVersionYears(page: Page) {
+  await expect(page.locator("main")).not.toContainText(
+    /2024\s*년?\s*[–~−-]\s*2026/,
+  );
+}
 test("대시보드·모바일 레이아웃·준비 중 버전", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
@@ -28,6 +33,10 @@ test("대시보드·모바일 레이아웃·준비 중 버전", async ({ page })
     ),
   ).toBe(true);
   await expect(page.locator(".bank-summary")).toContainText(/등록\s*900문항/);
+  await expect(
+    page.getByLabel("학습 기준").locator("option:checked"),
+  ).toHaveText("기본 문제은행");
+  await expectNoDefaultVersionYears(page);
   await page.getByLabel("학습 기준").selectOption("2027-2029");
   await expect(
     page.getByRole("button", { name: "모의시험 시작하기", exact: true }),
@@ -45,6 +54,7 @@ test("60문항 답변·북마크·새로고침 복원·합격 결과·전체 해
     .click();
   await expect(page.getByLabel("남은 시간")).toContainText(/60:00|59:5[0-9]/);
   await expect(page.locator(".number-grid button")).toHaveCount(60);
+  await expectNoDefaultVersionYears(page);
   await expect(page.locator(".explanation")).toHaveCount(0);
   const original = await read(page);
   const questions = original.exam.questions;
@@ -76,17 +86,26 @@ test("60문항 답변·북마크·새로고침 복원·합격 결과·전체 해
   await expect(
     page.getByRole("heading", { name: "모의시험 결과", exact: true }),
   ).toBeVisible();
+  await expectNoDefaultVersionYears(page);
   await expect(page.locator(".result-score")).toContainText("60");
   await expect(page.locator(".result-hero>.tag")).toHaveText("합격");
   await expect(page.locator(".review-card")).toHaveCount(60);
   await page.getByLabel("오답만 보기").check();
   await expect(page.locator(".review-card")).toHaveCount(24);
+  await nav(page, "학습 대시보드");
+  await expect(page.locator(".history-list")).toContainText("기본 문제은행");
+  await expectNoDefaultVersionYears(page);
+  await nav(page, "학습 통계");
+  await expect(page.locator(".history-list")).toContainText("기본 문제은행");
+  await expectNoDefaultVersionYears(page);
+  await page.locator(".history-list button").first().click();
   const saved = await read(page);
   expect(saved.results).toHaveLength(1);
   expect(saved.attempts).toHaveLength(60);
   expect(saved.wrongIds).toHaveLength(24);
   await page.getByRole("button", { name: "이 시험 오답만 다시 풀기" }).click();
   expect((await read(page)).practice.poolIds).toHaveLength(24);
+  await expectNoDefaultVersionYears(page);
   await expect(page.locator(".question-stem")).toBeVisible();
   expect(
     await page.evaluate(
@@ -153,6 +172,7 @@ test("즉시 채점·오답노트·연속 정답·학습 이어하기·북마크
   await nav(page, "북마크");
   await expect(page.locator(".review-card")).toHaveCount(1);
   await nav(page, "학습 통계");
+  await expectNoDefaultVersionYears(page);
   await expect(page.locator(".subject-stat")).toHaveCount(3);
 });
 test("JSON 등록·중복 제거·검수 대기·사용자 검수·CSV 등록·초기화", async ({
@@ -160,6 +180,8 @@ test("JSON 등록·중복 제거·검수 대기·사용자 검수·CSV 등록·�
 }) => {
   await page.goto("");
   await nav(page, "문제은행 관리");
+  await expectNoDefaultVersionYears(page);
+  await expect(page.locator(".bank-filter")).toContainText("기본 문제은행");
   await expect(page.locator(".bank-row")).toHaveCount(20);
   await expect(page.locator(".pagination")).toContainText("1 / 45");
   await page.getByLabel("문항 검색", { exact: true }).fill("ORG-I-300");

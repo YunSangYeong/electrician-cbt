@@ -629,7 +629,7 @@ function App() {
                       }))
                     }
                   >
-                    <option value="2024-2026">2024–2026</option>
+                    <option value="2024-2026">기본 문제은행</option>
                     <option value="2027-2029">2027–2029 · 준비 중</option>
                   </select>
                 </label>
@@ -637,7 +637,7 @@ function App() {
               <div className="criteria-note">
                 <ShieldCheck size={16} />
                 {state.version === "2024-2026"
-                  ? "2024–2026 학습 버전 · 공식 출제기준 대조 대기 · 자체 제작 연습문제 제공"
+                  ? "공식 출제기준 대조 대기 · 자체 제작 연습문제 제공"
                   : "2027–2029 별도 버전 · 공식 기준 및 문항 검증 전으로 출제를 제공하지 않습니다."}
               </div>
               <section className="mode-grid" aria-label="시험 모드">
@@ -1808,8 +1808,8 @@ function BankManager({
           </strong>
           <br />
           원문 기출 0 · 복원문제 0. 공식 자료 접근 제한으로 기출 원문 및
-          2024–2029 출제기준 대조는 완료하지 못했습니다. 기본 문항은 내부 검토
-          및 계산 검증을 거쳤으며 외부 전문가 검수는 받지 않았습니다.
+          출제기준 대조는 완료하지 못했습니다. 기본 문항은 내부 검토 및 계산
+          검증을 거쳤으며 외부 전문가 검수는 받지 않았습니다.
         </div>
       </div>
       <div className="bank-tools panel">

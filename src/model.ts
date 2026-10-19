@@ -36,7 +36,7 @@ export const TYPE_LABEL = {
   reconstructed: "복원문제",
 };
 export const VERSION_LABEL = {
-  "2024-2026": "2024–2026",
+  "2024-2026": "기본 문제은행",
   "2027-2029": "2027–2029",
 };
 export interface Exam {
