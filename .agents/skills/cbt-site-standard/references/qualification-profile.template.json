@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "standard": {
     "name": "cbt-site-standard",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "referenceRepository": "YunSangYeong/electrician-cbt",
     "referenceCommit": "b9a682ccff1b460334b78d5bfad9375b7ec4fbb6"
   },
@@ -32,7 +32,11 @@
     "defaultBankId": "main",
     "targetReviewedCount": 1000,
     "importedDefaultStatus": "pending",
-    "types": ["past", "reconstructed", "original"],
+    "types": [
+      "past",
+      "reconstructed",
+      "original"
+    ],
     "allowNumericVariants": null,
     "reportVariantFamiliesAndCounts": true
   },
@@ -41,10 +45,20 @@
     "showStudyCriteriaSelector": false,
     "showBankYearRange": false,
     "nextQuestionShortcut": "Space",
-    "shortcutModes": ["exam", "practice"],
+    "shortcutModes": [
+      "exam",
+      "practice"
+    ],
     "requireAnswerBeforeGlobalShortcut": true,
     "autoSubmitLastQuestionOnSpace": false,
-    "officialBranding": false
+    "officialBranding": false,
+    "showTopDisclaimerBanner": false,
+    "disclosureLocations": [
+      "footer-or-sidebar",
+      "question-bank-or-source-details",
+      "documentation"
+    ],
+    "showActionableStorageErrors": true
   },
   "storage": {
     "namespace": null,

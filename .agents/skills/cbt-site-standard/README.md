@@ -1,9 +1,10 @@
 # 다른 자격증 CBT용 표준 스킬
 
-현재 전기기능사 CBT의 최종 구현을 표준으로 재사용하는 **CBT 전용 스킬 v1.1.0**이다. 기존 `verified-web-project`가 개발 절차 중심이었다면 이 스킬은 화면·기능·키보드·저장·문제은행·검증·배포 인수 기준까지 정한다.
+현재 전기기능사 CBT의 최종 구현을 표준으로 재사용하는 **CBT 전용 스킬 v1.2.0**이다. 기존 `verified-web-project`가 개발 절차 중심이었다면 이 스킬은 화면·기능·키보드·저장·문제은행·검증·배포 인수 기준까지 정한다.
 
 - 기준 앱 커밋: `b9a682ccff1b460334b78d5bfad9375b7ec4fbb6` (2026-10-19)
 - 문제은행 표준: 중복 제거 후 검수 완료 **1,000문항**. 사용자 명시 수량이 없으면 적용하며, 한 회 시험 문항 수와 구별한다. 검증 대기·개인 로컬 등록분은 제외하고 미달 수를 공개한다.
+- 상단 안내 정책: 비공식·검증 대기·잠정 규칙 상시 배너를 만들지 않는다. 안내는 푸터·문제은행/출처 문서에 두고 실제 저장 오류 경고는 유지한다.
 - 핵심 스킬: [SKILL.md](SKILL.md)
 - 고정 기준: [references/reference-baseline.md](references/reference-baseline.md)
 - 자격증 설정: [references/qualification-profile.template.json](references/qualification-profile.template.json)
