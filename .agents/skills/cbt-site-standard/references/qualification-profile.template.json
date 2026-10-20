@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "standard": {
     "name": "cbt-site-standard",
-    "version": "1.3.0",
+    "version": "1.3.1",
     "referenceRepository": "YunSangYeong/electrician-cbt",
     "referenceCommit": "b9a682ccff1b460334b78d5bfad9375b7ec4fbb6"
   },
@@ -58,7 +58,10 @@
       "question-bank-or-source-details",
       "documentation"
     ],
-    "showActionableStorageErrors": true
+    "showActionableStorageErrors": true,
+    "mobileMenuScrollable": true,
+    "mobileMenuSmallHeightRegressionRequired": true,
+    "mobileMenuTouchScrollVerificationRequired": true
   },
   "storage": {
     "namespace": null,
