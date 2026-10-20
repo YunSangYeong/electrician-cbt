@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "standard": {
     "name": "cbt-site-standard",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "referenceRepository": "YunSangYeong/electrician-cbt",
     "referenceCommit": "b9a682ccff1b460334b78d5bfad9375b7ec4fbb6"
   },
@@ -30,7 +30,7 @@
   },
   "questionBank": {
     "defaultBankId": "main",
-    "targetReviewedCount": null,
+    "targetReviewedCount": 1000,
     "importedDefaultStatus": "pending",
     "types": ["past", "reconstructed", "original"],
     "allowNumericVariants": null,
