@@ -76,6 +76,12 @@ PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e
 
 자동 배포 구성: [`.github/workflows/pages.yml`](.github/workflows/pages.yml).
 
+**다음 CBT 프로젝트의 작업 방식은 표준 v1.4.0을 따릅니다.** 배포까지 요청하면 에이전트가 구현·검증·Git 반영과 배포를 맡고, 사용자는 최초 Pages 설정·필수 승인만 지원합니다. main push → 검증 → 자동 배포인 기존 흐름으로 돌아갑니다. 배포 전 확인부터 처음 막히면 두 번째 시도 없이 알리고 사용자 직접 마무리로 넘깁니다. [이전 방식 재현 절차](.agents/skills/cbt-site-standard/references/deployment-workflow.md)에 실제 workflow·Git 이력과 단계별 책임을 기록했습니다.
+
+문서/스킬 변경만으로 기존 사이트를 재배포하지 않습니다. 이 개정은 다음 작업용 지침이며, 별도로 배포 완료된 전기기사 프로젝트를 수정하거나 재배포하는 요청이 아닙니다.
+
+다음은 기존 workflow의 메뉴/기술 참고이며 사용자에게 전체 절차를 기본으로 맡긴다는 뜻이 아닙니다.
+
 1. GitHub 저장소 **Settings → Pages → Build and deployment → Source → GitHub Actions**를 선택합니다. 저장소 정책에서 Actions 및 Pages 사용이 허용되어야 합니다.
 2. `main`에 푸시하거나 **Actions → Test and deploy GitHub Pages → Run workflow**를 실행합니다.
 3. 단위 테스트·TypeScript 빌드·PC/모바일 브라우저 테스트 성공 후 정적 산출물(`dist`)을 업로드하고 Pages로 배포합니다. PR은 검증만 수행합니다.
@@ -83,9 +89,9 @@ PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e
 
 예상 공개 주소: **https://YunSangYeong.github.io/electrician-cbt/**
 
-**2026-10-18 실제 배포 확인 결과:** [Actions 실행 #1](https://github.com/YunSangYeong/electrician-cbt/actions/runs/39135408126)에서 `validate` 작업이 성공했고 `github-pages` 산출물(106KB)이 생성되었습니다. `deploy`는 `actions/configure-pages`의 Pages 사이트 조회에서 **404 Not Found**로 실패했습니다. 따라서 아직 공개 배포 완료가 아닙니다.
+**2026-10-18 최초 실행의 과거 기록:** [Actions 실행 #1](https://github.com/YunSangYeong/electrician-cbt/actions/runs/39135408126)에서 `validate` 작업이 성공했고 `github-pages` 산출물(106KB)이 생성되었습니다. `deploy`는 `actions/configure-pages`의 Pages 사이트 조회에서 **404 Not Found**로 실패했습니다. 당시 그 실행은 배포 미완료였습니다. 이후 고정 앱 커밋의 성공 실행 기록은 CBT 표준의 reference-baseline.md에 별도로 있습니다. 이 문서 개정에서 새 배포를 검증하지 않았습니다.
 
-저장소 관리자가 **Settings → Pages → Source: GitHub Actions**를 설정한 뒤, 위 실행 화면에서 **Re-run failed jobs**로 배포 단계를 재실행하세요. `GITHUB_TOKEN`만으로 Pages 최초 활성화를 자동 처리할 수 없으므로 불필요한 토큰을 추가하지 않고 저장소 설정을 사용합니다. 근거: [configure-pages의 enablement 입력 설명](https://github.com/actions/configure-pages/blob/v5/action.yml).
+당시 사용자가 최초 Pages 설정을 마무리해야 했습니다. 현재 표준에서는 에이전트의 첫 차단 뒤 사용자에게 필요한 그 설정만 안내하며, 에이전트가 실패 작업을 다시 실행하지 않습니다. 사용자는 필요 시 직접 마무리합니다. `GITHUB_TOKEN`만으로 Pages 최초 활성화를 자동 처리할 수 없으므로 불필요한 토큰을 추가하지 않고 저장소 설정을 사용합니다. 근거: [configure-pages의 enablement 입력 설명](https://github.com/actions/configure-pages/blob/v5/action.yml).
 
 현재 클라우드에서는 GitHub API 및 Pages 호스트에 대한 직접 요청이 프록시 403으로 차단되며, 저장소 Pages 설정 화면도 접근할 수 없습니다. Actions 공개 웹 화면에서 위 실패 결과를 확인했습니다. 도메인 접근을 위한 환경 설정 초안은 저장했지만 런타임 적용·환경 게시나 Pages 활성화를 완료했다고 주장하지 않습니다. 위 실행은 최초 90문항 버전의 과거 배포 결과입니다. 현재 900문항 확대 버전의 테스트는 위 명령으로 재실행하며, 이후 CI와 공개 배포 상태는 최신 Actions 실행을 기준으로 확인해야 합니다.
 
@@ -138,12 +144,22 @@ tests/                   단위 테스트 및 브라우저 시나리오
 
 ## 다른 자격증 CBT를 만들기 위한 전용 표준
 
-[cbt-site-standard 스킬](.agents/skills/cbt-site-standard/SKILL.md)은 학습 기준 메뉴 제거와 두 모드 Space 지원까지 반영된 최종 앱 커밋 `b9a682ccff1b460334b78d5bfad9375b7ec4fbb6`을 기준으로 합니다. 기존 일반 개발 절차 스킬과 함께 사용할 수 있으며, 다른 자격증 CBT의 화면·기능·저장·문제 관리·검증·배포 기준을 제공합니다.
+[cbt-site-standard 스킬 v1.4.0](.agents/skills/cbt-site-standard/SKILL.md)은 학습 기준 메뉴 제거와 두 모드 Space 지원까지 반영된 최종 앱 커밋 `b9a682ccff1b460334b78d5bfad9375b7ec4fbb6`을 기준으로 합니다. 기존 일반 개발 절차 스킬과 함께 사용할 수 있으며, 다른 자격증 CBT의 화면·기능·저장·문제 관리·검증·배포 기준을 제공합니다.
 
 [새 프로젝트 요청 예시](.agents/skills/cbt-site-standard/references/new-project-prompt.md)를 복사하여 클라우드 Codex에 전달하세요. 대상 저장소에 `.agents/skills/cbt-site-standard/` 폴더를 복사하고 기존 AGENTS.md에 연결하도록 요청하면 됩니다. 자격증별 과목·시험 수치·합격 규칙·문항 출처는 별도 확인하며 전기기능사 문제를 그대로 다른 자격증 문제로 복사하지 않습니다.
 
 표준 **v1.1.0**부터 다른 자격증 CBT의 문제은행 목표와 완료 기준은 **검수 완료 1,000문항**입니다. 중복·검증 대기·개인 로컬 등록분은 제외하며, 별도 수량 지시가 없다면 적용합니다. 현재 전기기능사 앱의 실제 등록 문항은 900개로 유지됩니다.
 
-[스킬 묶음 ZIP](docs/skills/cbt-site-standard-v1.2.0.zip)에는 SKILL.md, 고정 기준 명세, 자격증 설정 양식, 인수 체크리스트, AGENTS 연결 양식, 클라우드 시작 요청과 사용 안내가 포함됩니다. 계정 공통 스킬 등록이나 새 프로젝트의 자동 인식을 완료한 것은 아닙니다.
+[최신 스킬 묶음 ZIP v1.4.0](docs/skills/cbt-site-standard-v1.4.0.zip)에는 SKILL.md, 고정 기준 명세, 자격증 설정 양식, 인수 체크리스트, AGENTS 연결 양식, 클라우드 시작 요청과 사용 안내가 포함됩니다. 계정 공통 스킬 등록이나 새 프로젝트의 자동 인식을 완료한 것은 아닙니다.
 
 표준 **v1.2.0**부터 새 CBT에는 페이지 상단의 비공식·검증 대기·잠정 규칙 상시 안내 배너를 넣지 않습니다. 안내는 푸터·문제은행/출처 문서에 두며 실제 저장 실패·기록 손상 경고는 유지합니다. 앱 코드 기준 커밋은 유지한 문서 정책 개정입니다.
+
+### 다음 프로젝트에 적용되는 배포 책임
+
+- 배포까지 요청한 경우: 에이전트가 구현·검증·Git 반영·자동 배포 진행을 맡습니다.
+- 사용자: 에이전트에게 없는 관리자 권한의 최초 설정이나 필수 승인만 지원합니다. PR 작성·병합·Actions 실행 전체를 기본으로 맡기지 않습니다.
+- 첫 거부·실패·사용자 조치 필요: 에이전트는 즉시 중단하고 재시도하지 않습니다. 사용자가 직접 마무리하며 새 명시적 요청 전에는 재실행하지 않습니다.
+- 배포 요청이 없거나 금지/수동 전용 지시가 있으면 그 지시를 우선합니다. 이미 배포된 별도 프로젝트는 수정하지 않습니다.
+- 스킬 전체를 복사하고 AGENTS.md에 연결하면 다음 작업에서 이 절차를 읽어 적용할 수 있습니다. 플랫폼 권한이나 동일한 배포 성공 자체를 보장하지 않습니다.
+
+최신 전달용 묶음: `docs/skills/cbt-site-standard-v1.4.0.zip`. 이전 ZIP은 과거 버전이며 현재 정책으로 사용하지 마세요.
